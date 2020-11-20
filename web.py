@@ -4,7 +4,7 @@ from gensim.models import Word2Vec, FastText
 import streamlit as st
 import pydeck as pdk
 
-st.title('Coffee Recommendation System Ver0.3')
+st.title('Coffee Recommendation System')
 
 def cos_sim(v1, v2):
     return np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
@@ -46,46 +46,47 @@ mode = st.sidebar.selectbox(
     ('インデックス検索', 'フレーバー検索')
 )
 
-model_type = st.sidebar.selectbox(
-    'モデル',
-    ('Word2Vec', 'FastText')
-)
+# model_type = st.sidebar.selectbox(
+#     'モデル',
+#     ('Word2Vec', 'FastText')
+# )
 
-if model_type == 'Word2Vec':
-    model = Word2Vec.load('word2vec_0909.model')
-elif model_type == 'FastText':
-    model = FastText.load("fasttext_1023.model")
+model = Word2Vec.load('word2vec_0909.model')
+# if model_type == 'Word2Vec':
+#     model = Word2Vec.load('word2vec_0909.model')
+# elif model_type == 'FastText':
+#     model = FastText.load("fasttext_1023.model")
 
 method = st.sidebar.selectbox(
     '重み付けの方法',
     ('通常', 'Countベース', 'TF-IDFベース', 'SCDV', 'SIF')
 )
 
-if model_type == 'Word2Vec':
-    if method == '通常':
-        flavor_vector_list = pd.read_pickle('./normal_vec_list_0907.pkl')
-    elif method == 'Countベース':
-        flavor_vector_list = pd.read_pickle('./count_vec_list_0907.pkl')
-    elif method == 'TF-IDFベース':
-        flavor_vector_list = pd.read_pickle('./tfidf_vec_list_0907.pkl')
-    elif method == 'SCDV':
-        flavor_vector_list = pd.read_pickle('./scdv_vec_list_0907.pkl')
-        scdv_word_vectors = pd.read_pickle('./scdv_word_vectors_0907.pkl')
-    elif method == 'SIF':
-        flavor_vector_list = pd.read_pickle('./sif_vec_list_0907.pkl')
+# if model_type == 'Word2Vec':
+if method == '通常':
+    flavor_vector_list = pd.read_pickle('./normal_vec_list_0907.pkl')
+elif method == 'Countベース':
+    flavor_vector_list = pd.read_pickle('./count_vec_list_0907.pkl')
+elif method == 'TF-IDFベース':
+    flavor_vector_list = pd.read_pickle('./tfidf_vec_list_0907.pkl')
+elif method == 'SCDV':
+    flavor_vector_list = pd.read_pickle('./scdv_vec_list_0907.pkl')
+    scdv_word_vectors = pd.read_pickle('./scdv_word_vectors_0907.pkl')
+elif method == 'SIF':
+    flavor_vector_list = pd.read_pickle('./sif_vec_list_0907.pkl')
 
-if model_type == 'FastText':
-    if method == '通常':
-        flavor_vector_list = pd.read_pickle('./fasttext_normal_vec_list_0907.pkl')
-    elif method == 'Countベース':
-        flavor_vector_list = pd.read_pickle('./fasttext_count_vec_list_0907.pkl')
-    elif method == 'TF-IDFベース':
-        flavor_vector_list = pd.read_pickle('./fasttext_tfidf_vec_list_0907.pkl')
-    elif method == 'SCDV':
-        flavor_vector_list = pd.read_pickle('./fasttext_scdv_vec_list_0907.pkl')
-        scdv_word_vectors = pd.read_pickle('./fasttext_scdv_word_vectors_0907.pkl')
-    elif method == 'SIF':
-        flavor_vector_list = pd.read_pickle('./fasttext_sif_vec_list_0907.pkl')
+# if model_type == 'FastText':
+#     if method == '通常':
+#         flavor_vector_list = pd.read_pickle('./fasttext_normal_vec_list_0907.pkl')
+#     elif method == 'Countベース':
+#         flavor_vector_list = pd.read_pickle('./fasttext_count_vec_list_0907.pkl')
+#     elif method == 'TF-IDFベース':
+#         flavor_vector_list = pd.read_pickle('./fasttext_tfidf_vec_list_0907.pkl')
+#     elif method == 'SCDV':
+#         flavor_vector_list = pd.read_pickle('./fasttext_scdv_vec_list_0907.pkl')
+#         scdv_word_vectors = pd.read_pickle('./fasttext_scdv_word_vectors_0907.pkl')
+#     elif method == 'SIF':
+#         flavor_vector_list = pd.read_pickle('./fasttext_sif_vec_list_0907.pkl')
 
 if mode == 'インデックス検索':
     idx = st.sidebar.slider(
@@ -245,8 +246,8 @@ elif mode == 'フレーバー検索':
         tooltip={"text":"{country}:{cnt}"}
     ))
     
-if st.checkbox('開発ログを表示'):
-    st.write('10/01 インデックス検索とフレーバー検索、重み付けの方法を追加')
-    st.write('10/02 味の詳細検索を追加')
-    st.write('10/23 SCDVを実装')
-    st.write('11/5 Fasttextの追加')
+# if st.checkbox('開発ログを表示'):
+#     st.write('10/01 インデックス検索とフレーバー検索、重み付けの方法を追加')
+#     st.write('10/02 味の詳細検索を追加')
+#     st.write('10/23 SCDVを実装')
+#     st.write('11/5 Fasttextの追加')
