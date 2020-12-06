@@ -46,47 +46,46 @@ mode = st.sidebar.selectbox(
     ('インデックス検索', 'フレーバー検索')
 )
 
-# model_type = st.sidebar.selectbox(
-#     'モデル',
-#     ('Word2Vec', 'FastText')
-# )
+model_type = st.sidebar.selectbox(
+    'モデル',
+    ('Word2Vec', 'FastText')
+)
 
-model = Word2Vec.load('word2vec_0909.model')
-# if model_type == 'Word2Vec':
-#     model = Word2Vec.load('word2vec_0909.model')
-# elif model_type == 'FastText':
-#     model = FastText.load("fasttext_1023.model")
+if model_type == 'Word2Vec':
+    model = Word2Vec.load('./word2vec_0909.model')
+elif model_type == 'FastText':
+    model = pd.read_pickle('./fasttext_flavor_vectors.pkl')
 
 method = st.sidebar.selectbox(
     '重み付けの方法',
     ('通常', 'Countベース', 'TF-IDFベース', 'SCDV', 'SIF')
 )
 
-# if model_type == 'Word2Vec':
-if method == '通常':
-    flavor_vector_list = pd.read_pickle('./normal_vec_list_0907.pkl')
-elif method == 'Countベース':
-    flavor_vector_list = pd.read_pickle('./count_vec_list_0907.pkl')
-elif method == 'TF-IDFベース':
-    flavor_vector_list = pd.read_pickle('./tfidf_vec_list_0907.pkl')
-elif method == 'SCDV':
-    flavor_vector_list = pd.read_pickle('./scdv_vec_list_0907.pkl')
-    scdv_word_vectors = pd.read_pickle('./scdv_word_vectors_0907.pkl')
-elif method == 'SIF':
-    flavor_vector_list = pd.read_pickle('./sif_vec_list_0907.pkl')
+if model_type == 'Word2Vec':
+    if method == '通常':
+        flavor_vector_list = pd.read_pickle('./normal_vec_list_0907.pkl')
+    elif method == 'Countベース':
+        flavor_vector_list = pd.read_pickle('./count_vec_list_0907.pkl')
+    elif method == 'TF-IDFベース':
+        flavor_vector_list = pd.read_pickle('./tfidf_vec_list_0907.pkl')
+    elif method == 'SCDV':
+        flavor_vector_list = pd.read_pickle('./scdv_vec_list_0907.pkl')
+        scdv_word_vectors = pd.read_pickle('./scdv_word_vectors_0907.pkl')
+    elif method == 'SIF':
+        flavor_vector_list = pd.read_pickle('./sif_vec_list_0907.pkl')
 
-# if model_type == 'FastText':
-#     if method == '通常':
-#         flavor_vector_list = pd.read_pickle('./fasttext_normal_vec_list_0907.pkl')
-#     elif method == 'Countベース':
-#         flavor_vector_list = pd.read_pickle('./fasttext_count_vec_list_0907.pkl')
-#     elif method == 'TF-IDFベース':
-#         flavor_vector_list = pd.read_pickle('./fasttext_tfidf_vec_list_0907.pkl')
-#     elif method == 'SCDV':
-#         flavor_vector_list = pd.read_pickle('./fasttext_scdv_vec_list_0907.pkl')
-#         scdv_word_vectors = pd.read_pickle('./fasttext_scdv_word_vectors_0907.pkl')
-#     elif method == 'SIF':
-#         flavor_vector_list = pd.read_pickle('./fasttext_sif_vec_list_0907.pkl')
+if model_type == 'FastText':
+    if method == '通常':
+        flavor_vector_list = pd.read_pickle('./fasttext_normal_vec_list_0907.pkl')
+    elif method == 'Countベース':
+        flavor_vector_list = pd.read_pickle('./fasttext_count_vec_list_0907.pkl')
+    elif method == 'TF-IDFベース':
+        flavor_vector_list = pd.read_pickle('./fasttext_tfidf_vec_list_0907.pkl')
+    elif method == 'SCDV':
+        flavor_vector_list = pd.read_pickle('./fasttext_scdv_vec_list_0907.pkl')
+        scdv_word_vectors = pd.read_pickle('./fasttext_scdv_flavor_vectors.pkl')
+    elif method == 'SIF':
+        flavor_vector_list = pd.read_pickle('./fasttext_sif_vec_list_0907.pkl')
 
 if mode == 'インデックス検索':
     idx = st.sidebar.slider(
@@ -188,21 +187,39 @@ elif mode == 'フレーバー検索':
     flavor_vector = np.zeros(len(flavor_vector_list[0]))
     word_cnt = 0
     if flavors != []:
-        for flavor in flavors:
-            for flavor_name in flavor_dict[flavor]:
-                if flavor_name in model.wv.vocab.keys():
-                    if flavor_name in detail_flavor:
-                        if method == 'SCDV':
-                            flavor_vector += 3 * scdv_word_vectors[flavor_name]
+        if model_type == 'Word2Vec':
+            for flavor in flavors:
+                for flavor_name in flavor_dict[flavor]:
+                    if flavor_name in model.wv.vocab.keys():
+                        if flavor_name in detail_flavor:
+                            if method == 'SCDV':
+                                flavor_vector += 3 * scdv_word_vectors[flavor_name]
+                            else:
+                                flavor_vector += 3 * model.wv[flavor_name]
                         else:
-                            flavor_vector += 3 * model.wv[flavor_name]
-                    else:
-                        if method == 'SCDV':
-                            flavor_vector += scdv_word_vectors[flavor_name]
+                            if method == 'SCDV':
+                                flavor_vector += scdv_word_vectors[flavor_name]
+                            else:
+                                flavor_vector += model.wv[flavor_name]
+                        word_cnt += 1
+            flavor_vector /= word_cnt
+        
+        elif model_type == 'FastText':
+            for flavor in flavors:
+                for flavor_name in flavor_dict[flavor]:
+                    if flavor_name in model.keys():
+                        if flavor_name in detail_flavor:
+                            if method == 'SCDV':
+                                flavor_vector += 3 * scdv_word_vectors[flavor_name]
+                            else:
+                                flavor_vector += 3 * model[flavor_name]
                         else:
-                            flavor_vector += model.wv[flavor_name]
-                    word_cnt += 1
-        flavor_vector /= word_cnt
+                            if method == 'SCDV':
+                                flavor_vector += scdv_word_vectors[flavor_name]
+                            else:
+                                flavor_vector += model[flavor_name]
+                        word_cnt += 1
+            flavor_vector /= word_cnt
     
     k = st.sidebar.slider(
         '候補数',
