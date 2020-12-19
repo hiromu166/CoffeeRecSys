@@ -120,7 +120,9 @@ if mode == 'インデックス検索':
         result['per_1g'] = result['per_1g'].apply(lambda x :round(x, 2))
     except:
         pass
-    plot_result = result[['similarity', 'country', 'flavor', 'variety', 'process', 'roast', 'per_1g', 'shop']].rename(columns={'similarity':'類似度', 'country':'生産国', 'flavor':'風味', 'variety':'品種', 'process':'精製', 'roast':'焙煎度合い', 'per_1g':'1gあたりの値段', 'shop':'店名'}).reset_index(drop=True)
+    plot_result = result[['similarity', 'country', 'flavor', 'variety', 'process', 'roast', 'per_1g']].rename(columns={'similarity':'類似度', 'country':'生産国', 'flavor':'風味', 'variety':'品種', 'process':'精製', 'roast':'焙煎度合い', 'per_1g':'1gあたりの値段'}).reset_index(drop=True)
+    
+    #plot_result = result[['similarity', 'country', 'flavor', 'variety', 'process', 'roast', 'per_1g', 'shop']].rename(columns={'similarity':'類似度', 'country':'生産国', 'flavor':'風味', 'variety':'品種', 'process':'精製', 'roast':'焙煎度合い', 'per_1g':'1gあたりの値段', 'shop':'店名'}).reset_index(drop=True)
     show_data = st.radio(
         '出力結果',
         ('表示', '非表示')
@@ -309,7 +311,9 @@ elif mode == 'フレーバー検索':
         result['per_1g'] = result['per_1g'].apply(lambda x :round(x, 2))
     except:
         pass
-    plot_result = result[['similarity', 'country', 'flavor', 'variety', 'process', 'roast', 'per_1g', 'shop', 'url']].rename(columns={'similarity':'類似度', 'country':'生産国', 'flavor':'風味', 'variety':'品種', 'process':'精製', 'roast':'焙煎度合い', 'per_1g':'1gあたりの値段', 'shop':'店名', 'url':'URL'}).reset_index(drop=True)
+    plot_result = result[['similarity', 'country', 'flavor', 'variety', 'process', 'roast', 'per_1g', 'url']].rename(columns={'similarity':'類似度', 'country':'生産国', 'flavor':'風味', 'variety':'品種', 'process':'精製', 'roast':'焙煎度合い', 'per_1g':'1gあたりの値段', 'url':'URL'}).reset_index(drop=True)
+    
+    # plot_result = result[['similarity', 'country', 'flavor', 'variety', 'process', 'roast', 'per_1g', 'shop', 'url']].rename(columns={'similarity':'類似度', 'country':'生産国', 'flavor':'風味', 'variety':'品種', 'process':'精製', 'roast':'焙煎度合い', 'per_1g':'1gあたりの値段', 'shop':'店名', 'url':'URL'}).reset_index(drop=True)
     plot_result['URL'] = plot_result['URL'].apply(lambda x : make_clickable(x, 'click here'))
     show_data = st.radio(
         '出力結果',
