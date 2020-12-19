@@ -62,11 +62,11 @@ elif model_type == 'FastText':
 
 method = st.sidebar.selectbox(
     '重み付けの方法',
-    ('通常', 'Countベース', 'TF-IDFベース', 'SCDV', 'SIF')
+    ('なし', 'Countベース', 'TF-IDFベース', 'SCDV', 'SIF')
 )
 
 if model_type == 'Word2Vec':
-    if method == '通常':
+    if method == 'なし':
         flavor_vector_list = pd.read_pickle('./normal_vec_list_0907.pkl')
     elif method == 'Countベース':
         flavor_vector_list = pd.read_pickle('./count_vec_list_0907.pkl')
@@ -79,7 +79,7 @@ if model_type == 'Word2Vec':
         flavor_vector_list = pd.read_pickle('./sif_vec_list_0907.pkl')
 
 if model_type == 'FastText':
-    if method == '通常':
+    if method == 'なし':
         flavor_vector_list = pd.read_pickle('./fasttext_normal_vec_list_0907.pkl')
     elif method == 'Countベース':
         flavor_vector_list = pd.read_pickle('./fasttext_count_vec_list_0907.pkl')
@@ -115,7 +115,12 @@ if mode == 'インデックス検索':
 
     result = get_sim_record(flavor_vector_list, data, idx=idx,top=k)
     result.fillna('null', inplace=True)
-    plot_result = result[['similarity', 'country', 'flavor', 'variety', 'process', 'roast', 'per_1g']].rename(columns={'similarity':'類似度', 'country':'生産国', 'flavor':'風味', 'variety':'品種', 'process':'精製', 'roast':'焙煎度合い', 'per_1g':'1gあたりの値段'})
+    try:
+        result['similarity'] = result['similarity'].apply(lambda x : round(x, 3))
+        result['per_1g'] = result['per_1g'].apply(lambda x :round(x, 2))
+    except:
+        pass
+    plot_result = result[['similarity', 'country', 'flavor', 'variety', 'process', 'roast', 'per_1g', 'shop']].rename(columns={'similarity':'類似度', 'country':'生産国', 'flavor':'風味', 'variety':'品種', 'process':'精製', 'roast':'焙煎度合い', 'per_1g':'1gあたりの値段', 'shop':'店名'}).reset_index(drop=True)
     show_data = st.radio(
         '出力結果',
         ('表示', '非表示')
@@ -197,6 +202,26 @@ elif mode == 'フレーバー検索':
                 4. 候補数はサイドメニューのバーをスライドすることで変更できます。
                 5. モデルと重み付けの方法を変えることで違う結果を得ることもできます。
                 ''')
+    if st.checkbox('モデルと重み付けの方法について'):
+        st.markdown('''
+                    - モデル
+                        - Word2Vec
+                            - 単語をベクトルで表す際に用いられる一般的な手法。
+                        - FastText
+                            - Word2Vecよりも細かい分割(単語ではなくサブワード)でベクトル化することができる手法。
+                    - 重み付けの方法
+                        - なし
+                            - 重み付けを行わない単純平均。
+                        - Countベース
+                            - 文章全体における単語の出現回数が多いものには小さい重みを、少ないものには大きな重みを割り当てる。
+                        - TF-IDFベース
+                            - ある文章では出現回数が多いが、他の文章ではあまり出現しないような、その文章を特徴付ける単語に大きな重みを割り当てる。
+                        - SCDV
+                            - 単語のベクトルをクラスタリングすることで潜在トピックに分類し、その情報と他の文章での出現回数を考慮して重みを割り当てる。
+                        - SIF
+                            - モデルを学習する際に使用した文章における単語の出現回数に基づいて重みを割り当てる。(性能が良いことが知られている)
+                    ''')
+        
     flavor_dict = {
         'フローラル':['カモミール', 'ローズ', 'ジャスミン', 'フローラル', '花'],
         'フルーティー':['ブラックベリー', 'ラズベリー', 'ブルーベリー', 'ストロベリー', 'ベリー', 'レーズン', 'プルーン', 'ドライフルーツ', 'ココナッツ', 'チェリー', 'ザクロ', 'パイナップル', 'グレープ', 'マスカット', 'リンゴ', 'りんご', 'アップル', '桃', '洋梨', 'グレープフルーツ', 'オレンジ', 'レモン', 'ライム', 'プラム', '柑橘'],
@@ -279,7 +304,12 @@ elif mode == 'フレーバー検索':
 
     result = get_flavor_record(flavor_vector, flavor_vector_list, data ,top=k)
     result.fillna('null', inplace=True)
-    plot_result = result[['similarity', 'country', 'flavor', 'variety', 'process', 'roast', 'per_1g', 'url']].rename(columns={'similarity':'類似度', 'country':'生産国', 'flavor':'風味', 'variety':'品種', 'process':'精製', 'roast':'焙煎度合い', 'per_1g':'1gあたりの値段', 'url':'URL'})
+    try:
+        result['similarity'] = result['similarity'].apply(lambda x : round(x, 3))
+        result['per_1g'] = result['per_1g'].apply(lambda x :round(x, 2))
+    except:
+        pass
+    plot_result = result[['similarity', 'country', 'flavor', 'variety', 'process', 'roast', 'per_1g', 'shop', 'url']].rename(columns={'similarity':'類似度', 'country':'生産国', 'flavor':'風味', 'variety':'品種', 'process':'精製', 'roast':'焙煎度合い', 'per_1g':'1gあたりの値段', 'shop':'店名', 'url':'URL'}).reset_index(drop=True)
     plot_result['URL'] = plot_result['URL'].apply(lambda x : make_clickable(x, 'click here'))
     show_data = st.radio(
         '出力結果',
